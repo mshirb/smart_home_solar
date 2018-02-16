@@ -38,15 +38,24 @@ class SolarEdge:
         jreply = r.json()['siteCurrentPowerFlow']
         print(jreply)
 
+        # make sure API isn't empty
+        if jreply == {}:
+            raise Exception('No Data Found')
+
         # seperate data
-        connections = jreply['connections'][1]
+        connectionsholder = jreply['connections']
+        connections = ''
+        for item in connectionsholder:
+            for key, item2 in item.items():
+                if(str(item2).lower() == 'grid'):
+                    connections = item
+
         grid = jreply['GRID']
         load = jreply['LOAD']
         pv = jreply['PV']
         direction = False
         if(str(connections['from']).lower() == 'load'):
             direction = True
-        # print(str(connections['from']) + '->' + str(connections['to']))
         units = jreply['unit']
         PVPower = pv['currentPower']
         LoadPower = load['currentPower']
