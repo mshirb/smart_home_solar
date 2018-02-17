@@ -31,12 +31,12 @@ class SolarEdge:
         # build url and get json reply
         location = 'site/' + Site_Id + '/currentPowerFlow'
         url = url_builder(self, location, [])
-        print(url)
+        # print(url)
         r = requests.get(url)
         if(r.status_code != 200):
             raise Exception('Web Request Failed')
         jreply = r.json()['siteCurrentPowerFlow']
-        print(jreply)
+        # print(jreply)
 
         # make sure API isn't empty
         if jreply == {}:
@@ -61,7 +61,7 @@ class SolarEdge:
         LoadPower = load['currentPower']
         GridPower = grid['currentPower']
         returnval = direction, units, PVPower, LoadPower, GridPower
-        print(returnval)
+        print('SEA: ' + returnval)
         return returnval
 
 
