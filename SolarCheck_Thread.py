@@ -34,11 +34,11 @@ class SolarCheckThread(threading.Thread):
             if bdirection and (PVPower > 2.00) and not settings.bAirConOn:
                 print(self.threadID + ': Turning on AirConditioner')
                 settings.bAirConOn = True
-                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='On @' + str(PVPower) + sunit)
+                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='On @ ' + str(PVPower) + sunit)
             elif bdirection and settings.bAirConOn and (PVPower <= 2.00):
                 print(self.threadID + ': Turning off AirConditioner')
                 settings.bAirConOn = False
-                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1=('Off @' + str(PVPower) + sunit))
+                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1=('Off @ ' + str(PVPower) + sunit))
             elif settings.bAirConOn:
                 print(self.threadID + ': Air Conditioning already on')
 
@@ -50,4 +50,9 @@ class SolarCheckThread(threading.Thread):
                 print(self.threadID + ': Still importing')
 
             SolarCheckThread.__sleeping(self, 10 * 60)
+
+        if settings.bAirConOn:
+            print(self.threadID + ': Turning off AirConditioner due to exit')
+            settings.bAirConOn = False
+            pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off')
         print(self.threadID + ': Exiting...')
