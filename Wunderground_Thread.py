@@ -35,11 +35,11 @@ class WundergroundSunsetSunriseThread(threading.Thread):
     def run(self):
         location = 'Australia/Canberra'
         response = None
-        WundergroundSunsetSunriseThread.__start_sthread(self)
+        # WundergroundSunsetSunriseThread.__start_sthread(self)
         while not settings.WunderExitFlag:
             ctime = datetime.datetime.now().time()
             # Update at 1 am
-            if (ctime.hour == 1 and ctime.minute == 0) or response is None:
+            if (ctime.hour == 1) or response is None:
                 print(self.threadID + ': Updating Weather')
                 r = weather.Extract(self.api_keys['Wunderground'])
                 response = r.astronomy(location).data
@@ -64,4 +64,5 @@ class WundergroundSunsetSunriseThread(threading.Thread):
                 print(self.threadID + ': Start')
                 WundergroundSunsetSunriseThread.__start_sthread(self)
 
-            WundergroundSunsetSunriseThread.__sleeping(self, 15*60)
+            WundergroundSunsetSunriseThread.__sleeping(self, 30*60)
+        print(self.threadID + ': Exiting...')

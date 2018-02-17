@@ -61,7 +61,7 @@ class SolarEdge:
         LoadPower = load['currentPower']
         GridPower = grid['currentPower']
         returnval = direction, units, PVPower, LoadPower, GridPower
-        print('SEA: ' + returnval)
+        print('SEACC: ' + str(returnval))
         return returnval
 
 
