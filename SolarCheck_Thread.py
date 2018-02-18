@@ -5,12 +5,21 @@ import settings
 import threading
 from time import sleep
 
+
 class SolarCheckThread(threading.Thread):
-    def __init__(self, threadID, api_keys, se_siteid):
+    def __init__(self, threadID, api_keys, se_siteid, PVLimit):
+        """
+        SolarCheckThread works with SolarEdge and IFTTT to turn on or off AC
+        :param threadID:    ID dedicated to this thread
+        :param api_keys:    Dictionary of API Keys
+        :param se_siteid:   Site ID for Solar Edge
+        :param PVLimit:     The kW limit for AC
+        """
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.api_keys = api_keys
         self.site_id = se_siteid
+        self.AirOnPVLimit = PVLimit
 
     def __sleeping(self, count):
         print(self.threadID + ': Sleeping for ' + str(count))
@@ -31,11 +40,11 @@ class SolarCheckThread(threading.Thread):
             else:
                 print(self.threadID + ': Your system is importing power from grid')
 
-            if bdirection and (PVPower > 2.00) and not settings.bAirConOn:
+            if bdirection and (PVPower > self.AirOnPVLimit) and (sunit == 'kW') and not settings.bAirConOn:
                 print(self.threadID + ': Turning on AirConditioner')
                 settings.bAirConOn = True
                 pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='On @ ' + str(PVPower) + sunit)
-            elif bdirection and settings.bAirConOn and (PVPower <= 2.00):
+            elif bdirection and settings.bAirConOn and (PVPower <= self.AirOnPVLimit) and (sunit == 'kW'):
                 print(self.threadID + ': Turning off AirConditioner')
                 settings.bAirConOn = False
                 pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1=('Off @ ' + str(PVPower) + sunit))
