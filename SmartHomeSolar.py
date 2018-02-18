@@ -26,7 +26,7 @@ def main():
     api_keys['IFTTT'] = args.ifttt_key
     api_keys['Wunderground'] = args.wunderground_key
 
-    checkingThread = Wunderground_Thread.WundergroundSunsetSunriseThread('WG001', api_keys, site_id)
+    checkingThread = Wunderground_Thread.WundergroundSunsetSunriseThread('WG001', api_keys, site_id, 30.0, 20.0, 2.5)
 
     checkingThread.start()
 
