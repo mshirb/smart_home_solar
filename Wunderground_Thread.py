@@ -18,6 +18,8 @@ class WundergroundSunsetSunriseThread(threading.Thread):
         # Start Thread
         if self.sThread is None:
             self.sThread = SolarCheck_Thread.SolarCheckThread('SE001', self.api_keys, self.site_id)
+        else:
+            settings.SolarExitFlag = False
         if not self.sThread.is_alive():
             self.sThread.start()
 
