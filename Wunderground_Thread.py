@@ -50,7 +50,7 @@ class WundergroundSunsetSunriseThread(threading.Thread):
         sleep(count)
 
     def run(self):
-        location = 'Australia/Canberra'
+        location = 'Australia/Googong'
         response_astro = None
         # WundergroundSunsetSunriseThread.__start_sthread(self)
         while not settings.WunderExitFlag:
