@@ -44,7 +44,7 @@ class ACThread(threading.Thread):
             if not bdirection and GlobalSettings.bAirConOn:
                 print(self.name + ': Turning off AirConditioner')
                 GlobalSettings.bAirConOn = False
-                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off')
+                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off @ Importing')
             elif not bdirection:
                 print(self.name + ': Still importing')
 
@@ -101,11 +101,12 @@ class ACThread(threading.Thread):
                 if int(ctime['hour']) < int(sunrise['hour']):
                     print(self.name + ': Before Sunrise')
 
-                elif int(ctime['hour']) == int(sunset['hour']) and int(ctime['minute']) >= int(sunset['minute']):
-                        print(self.name + ': After Sunset')
-
                 elif int(ctime['hour']) > int(sunset['hour']):
                     print(self.name + ': After Sunset')
+                    if GlobalSettings.bAirConOn:
+                        print(self.name + ': Turning off AirConditioner')
+                        GlobalSettings.bAirConOn = False
+                        pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off @ Sunset')
 
                 else:
                     print(self.name + ': Start')
