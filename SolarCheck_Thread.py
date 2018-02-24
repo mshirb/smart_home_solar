@@ -1,6 +1,6 @@
 import pyfttt
 import SolarEdge_Access
-import settings
+import GlobalSettings
 
 import threading
 from time import sleep
@@ -26,7 +26,7 @@ class SolarCheckThread(threading.Thread):
         sleep(count)
 
     def run(self):
-        while not settings.SolarExitFlag:
+        while not GlobalSettings.SolarExitFlag:
             sedge = SolarEdge_Access.SolarEdge(self.api_keys['SolarEdge'])
             try:
                 bdirection, sunit, PVPower, LoadPower, GridPower = sedge.getcurrentpowerflow(self.site_id)
@@ -40,28 +40,28 @@ class SolarCheckThread(threading.Thread):
             else:
                 print(self.threadID + ': Your system is importing power from grid')
 
-            if bdirection and (PVPower > self.AirOnPVLimit) and (sunit == 'kW') and not settings.bAirConOn:
+            if bdirection and (PVPower > self.AirOnPVLimit) and (sunit == 'kW') and not GlobalSettings.bAirConOn:
                 print(self.threadID + ': Turning on AirConditioner')
-                settings.bAirConOn = True
+                GlobalSettings.bAirConOn = True
                 pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='On @ ' + str(PVPower) + sunit)
-            elif bdirection and settings.bAirConOn and (PVPower <= self.AirOnPVLimit) and (sunit == 'kW'):
+            elif bdirection and GlobalSettings.bAirConOn and (PVPower <= self.AirOnPVLimit) and (sunit == 'kW'):
                 print(self.threadID + ': Turning off AirConditioner')
-                settings.bAirConOn = False
+                GlobalSettings.bAirConOn = False
                 pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1=('Off @ ' + str(PVPower) + sunit))
-            elif settings.bAirConOn:
+            elif GlobalSettings.bAirConOn:
                 print(self.threadID + ': Air Conditioning already on')
 
-            if not bdirection and settings.bAirConOn:
+            if not bdirection and GlobalSettings.bAirConOn:
                 print(self.threadID + ': Turning off AirConditioner')
-                settings.bAirConOn = False
+                GlobalSettings.bAirConOn = False
                 pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off')
             elif not bdirection:
                 print(self.threadID + ': Still importing')
 
             SolarCheckThread.__sleeping(self, 10 * 60)
 
-        if settings.bAirConOn:
+        if GlobalSettings.bAirConOn:
             print(self.threadID + ': Turning off AirConditioner due to exit')
-            settings.bAirConOn = False
+            GlobalSettings.bAirConOn = False
             pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off')
         print(self.threadID + ': Exiting...')

@@ -1,6 +1,6 @@
 import SolarCheck_Thread
 from WunderWeather import weather
-import settings
+import GlobalSettings
 
 import threading
 from time import sleep
@@ -8,7 +8,7 @@ import datetime
 
 
 class WundergroundSunsetSunriseThread(threading.Thread):
-    def __init__(self, threadID, api_keys, site_id, high_temp, low_temp, PVLimit):
+    def __init__(self, threadID, api_keys, high_temp, low_temp):
         """
         WundergroundSunsetSunriseThread works with Wunderground to provide weather smarts
         Using sunrise and sunset we run the solar check thread
@@ -23,25 +23,23 @@ class WundergroundSunsetSunriseThread(threading.Thread):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.api_keys = api_keys
-        self.site_id = site_id
         self.sThread = None
         self.high_temp = high_temp
         self.low_temp = low_temp
-        self.PVLimit = PVLimit
 
     def __start_sthread(self):
         # Start Thread
         if self.sThread is None:
             self.sThread = SolarCheck_Thread.SolarCheckThread('SE001', self.api_keys, self.site_id, self.PVLimit)
         else:
-            settings.SolarExitFlag = False
+            GlobalSettings.SolarExitFlag = False
         if not self.sThread.is_alive():
             self.sThread.start()
 
     def __stop_sthread(self):
         # Stop Thread
         if self.sThread is not None:
-            settings.SolarExitFlag = True
+            GlobalSettings.SolarExitFlag = True
             self.sThread.join()
             self.sThread = None
 
@@ -53,7 +51,7 @@ class WundergroundSunsetSunriseThread(threading.Thread):
         location = 'Australia/Googong'
         response_astro = None
         # WundergroundSunsetSunriseThread.__start_sthread(self)
-        while not settings.WunderExitFlag:
+        while not GlobalSettings.WunderExitFlag:
             ctime = datetime.datetime.now().time()
             # Update at 1 am
             # if (ctime.hour == 1) or response_astro is None:
