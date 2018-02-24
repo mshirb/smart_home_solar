@@ -26,7 +26,7 @@ def main():
     api_keys['IFTTT'] = args.ifttt_key
     api_keys['Wunderground'] = args.wunderground_key
 
-    airconditioner_service = AirConditionerService.ACThread('AC001', api_keys=api_keys, temps=[30.0, 20.0], se_siteid=site_id, pvlimit=2.5)
+    airconditioner_service = AirConditionerService.ACThread('AC001', api_keys=api_keys, temps=[30.0, 15.0], se_siteid=site_id, pvlimit=2.5)
     airconditioner_service.start()
 
 if __name__ == "__main__":
