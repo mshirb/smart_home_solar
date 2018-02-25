@@ -1,48 +1,37 @@
-import requests
-import threading
 import datetime
+from time import sleep
+import requests
+
+from WeatherBaseClass import WeatherClass
 
 url_head = 'https://api.darksky.net/forecast/'
 
 
-class MyWeatherProvider(threading.Thread):
+class MyWeatherProvider(WeatherClass):
 
-    def __init__(self, api_keys, lat, long):
-        threading.Thread.__init__(self)
-        self.name = 'ForecastIOWeatherProvider'
+    def __init__(self, api_keys, location):
+        WeatherClass.__init__(self, location=location)
+        self.name = 'ForecastIOProvider'
         self.api = api_keys['ForecastIO']
-        self.latitude = lat
-        self.longtitude = long
-        self.weather = {}
-        self.updateWeather()
         print(self.name + ': Initialised')
 
-    def getTempHigh(self):
-        try:
-            return self.weather['temp']['high']
-        except KeyError:
-            return 'N/A'
-
-    def getTempLow(self):
-        try:
-            return self.weather['temp']['low']
-        except KeyError:
-            return 'N/A'
-
-    def getSunrise(self):
-        try:
-            return self.weather['sunrise']
-        except KeyError:
-            return 'N/A'
-
-    def getSunset(self):
-        try:
-            return self.weather['sunset']
-        except KeyError:
-            return 'N/A'
-
     def updateWeather(self):
-        print(self.name + ': Updating @ ' + str(datetime.datetime.now()))
+        print(self.name + ': Updating Weather Service')
+
+        url = url_head + self.api + '/' + self.location
+
+        current_time = datetime.datetime.now()
+        self.update_time = current_time + datetime.timedelta(minutes=30)
 
     def run(self):
         print(self.name + ': Running')
+
+        if self.update_time < datetime.datetime.now():
+            self.updateWeather()
+
+        sleep(60)
+
+
+api_keys = {}
+api_keys['ForecastIO'] = 'AAAA'
+MyWeatherProvider(api_keys=api_keys, location=None)
