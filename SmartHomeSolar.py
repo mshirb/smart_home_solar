@@ -1,7 +1,7 @@
 import argparse
 
-import Wunderground_Thread
-import settings
+import GlobalSettings
+import AirConditionerService
 
 api_keys = {}
 site_id = '635862'
@@ -11,7 +11,7 @@ def main():
     Main run code for SmartHomeSolar
     :return:
     """
-    settings.init()
+    GlobalSettings.init()
 
     #Parse arguments in for API Keys
     parser = argparse.ArgumentParser()
@@ -26,10 +26,8 @@ def main():
     api_keys['IFTTT'] = args.ifttt_key
     api_keys['Wunderground'] = args.wunderground_key
 
-    checkingThread = Wunderground_Thread.WundergroundSunsetSunriseThread('WG001', api_keys, site_id, 30.0, 20.0, 2.5)
-
-    checkingThread.start()
-
+    airconditioner_service = AirConditionerService.ACThread('AC001', api_keys=api_keys, temps=[30.0, 17.0], se_siteid=site_id, pvlimit=2.5)
+    airconditioner_service.start()
 
 if __name__ == "__main__":
     main()
