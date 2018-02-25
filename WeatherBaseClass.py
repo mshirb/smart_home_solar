@@ -23,6 +23,12 @@ class WeatherClass(threading.Thread):
         except KeyError:
             return 'N/A'
 
+    def getTempCurrent(self):
+        try:
+            return self.weather['temp']['current']
+        except KeyError:
+            return 'N/A'
+
     def getSunrise(self):
         try:
             return self.weather['sunrise']

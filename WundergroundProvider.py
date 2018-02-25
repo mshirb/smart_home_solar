@@ -1,49 +1,34 @@
 import datetime
 from time import sleep
-import requests
 
 from WeatherBaseClass import WeatherClass
-
-url_head = 'https://api.darksky.net/forecast/'
+from WunderWeather import weather
 
 
 class MyWeatherProvider(WeatherClass):
 
     def __init__(self, api_keys, location):
-        self.api = str(api_keys['ForecastIO'])
+        self.api = str(api_keys['Wunderground'])
         WeatherClass.__init__(self, location=location)
-        self.name = 'ForecastIOProvider'
+        self.name = 'WundergroundProvider'
         print(self.name + ': Initialised')
 
     def updateWeather(self):
         print(self.name + ': Updating Weather Service')
 
-        url = url_head + self.api + '/' + self.location
-        response = requests.get(url, {'exclude': 'minutely, hourly', 'units': 'si'})
-        if response.status_code != 200:
-            return
-        # print(response.json()['daily']['data'][0])
+        r = weather.Extract(self.api)
+        response_astro = r.astronomy(self.location).data
+        response_weather = r.daycast(self.location).data['simpleforecast']['forecastday'][0]
+        temp_current = float(r.today_now(self.location).data['temp_c'])
 
-        resp = response.json()
-
-        sunrise_unix = resp['daily']['data'][0]['sunriseTime']
-        sunrise_dt = datetime.datetime.fromtimestamp(sunrise_unix)
-        sunrise = {
-            'hour': sunrise_dt.hour,
-            'minute': sunrise_dt.minute
-        }
-        # print(sunrise)
-        sunset_unix = resp['daily']['data'][0]['sunsetTime']
-        sunset_dt = datetime.datetime.fromtimestamp(sunset_unix)
-        sunset = {
-            'hour': sunset_dt.hour,
-            'minute': sunset_dt.minute
-        }
-        # print(sunset)
-
-        temp_current = float(resp['currently']['temperature'])
-        day_high = float(resp['daily']['data'][0]['temperatureHigh'])
-        day_low = float(resp['daily']['data'][0]['temperatureLow'])
+        sunrise = response_astro['sunrise']
+        sunset = response_astro['sunset']
+        day_high = float(response_weather['high']['celsius'])
+        if temp_current > day_high:
+            day_high = temp_current
+        day_low = float(response_weather['low']['celsius'])
+        if temp_current < day_low:
+            day_low = temp_current
 
         print(self.name + ': Sunrise:\t' + str(sunrise['hour']) + ':' + str(sunrise['minute']))
         print(self.name + ': Sunset:\t' + str(sunset['hour']) + ':' + str(sunset['minute']))
