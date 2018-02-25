@@ -1,4 +1,4 @@
-import SolarCheck_Thread
+import DEP_SolarCheck_Thread
 from WunderWeather import weather
 import GlobalSettings
 
@@ -30,7 +30,7 @@ class WundergroundSunsetSunriseThread(threading.Thread):
     def __start_sthread(self):
         # Start Thread
         if self.sThread is None:
-            self.sThread = SolarCheck_Thread.SolarCheckThread('SE001', self.api_keys, self.site_id, self.PVLimit)
+            self.sThread = DEP_SolarCheck_Thread.SolarCheckThread('SE001', self.api_keys, self.site_id, self.PVLimit)
         else:
             GlobalSettings.SolarExitFlag = False
         if not self.sThread.is_alive():
