@@ -21,6 +21,7 @@ class MyWeatherProvider(WeatherClass):
         url = url_head + self.api + '/' + self.location
         response = requests.get(url, {'exclude': 'minutely, hourly', 'units': 'si'})
         if response.status_code != 200:
+            print(self.name + ': ERROR ' + response.status_code)
             return
         # print(response.json()['daily']['data'][0])
 

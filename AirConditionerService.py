@@ -2,7 +2,6 @@ import threading
 import datetime
 
 import GlobalSettings
-from WunderWeather import weather
 import SolarEdge_Access
 from time import sleep
 import pyfttt
