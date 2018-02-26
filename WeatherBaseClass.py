@@ -55,5 +55,5 @@ class WeatherClass(threading.Thread):
         while GlobalSettings.WeatherProcessFlag:
             if self.update_time < datetime.datetime.now():
                 self.updateWeather()
-            sleep(60)
+            sleep(30)
 

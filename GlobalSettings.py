@@ -6,7 +6,7 @@ ACFlag = None
 WeatherProcessFlag = None
 
 def init():
-    global bAirConOn, ACFlag
+    global bAirConOn, ACFlag, WeatherProcessFlag
     bAirConOn = False
     ACFlag = False
     WeatherProcessFlag = True
