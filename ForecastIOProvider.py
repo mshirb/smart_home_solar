@@ -65,11 +65,3 @@ class MyWeatherProvider(WeatherClass):
 
         current_time = datetime.datetime.now()
         self.update_time = current_time + datetime.timedelta(minutes=30)
-
-    def run(self):
-        print(self.name + ': Running')
-
-        if self.update_time < datetime.datetime.now():
-            self.updateWeather()
-
-        sleep(60)

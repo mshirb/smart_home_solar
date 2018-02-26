@@ -1,5 +1,10 @@
 import threading
 from abc import abstractmethod
+import datetime
+from time import sleep
+
+import GlobalSettings
+
 
 class WeatherClass(threading.Thread):
 
@@ -44,4 +49,11 @@ class WeatherClass(threading.Thread):
     @abstractmethod
     def updateWeather(self):
         pass
+
+    def run(self):
+        print(self.name + ': Running')
+        while GlobalSettings.WeatherProcessFlag:
+            if self.update_time < datetime.datetime.now():
+                self.updateWeather()
+            sleep(60)
 
