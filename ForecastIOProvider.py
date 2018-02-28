@@ -47,11 +47,11 @@ class MyWeatherProvider(WeatherClass):
         day_high = float(resp['daily']['data'][0]['temperatureHigh'])
         day_low = float(resp['daily']['data'][0]['temperatureLow'])
 
-        string_result = 'Sunrise:\t' + str(sunrise['hour']) + ':' + str(sunrise['minute'])
-        string_result += 'Sunset:\t' + str(sunset['hour']) + ':' + str(sunset['minute'])
-        string_result += 'CurTC:\t' + str(temp_current) + 'C'
-        string_result += 'MaxTC:\t' + str(day_high) + 'C'
-        string_result += 'MinTC:\t' + str(day_low) + 'C'
+        string_result = 'Sunrise:\t' + str(sunrise['hour']) + ':' + str(sunrise['minute']) + '\n'
+        string_result += 'Sunset:\t' + str(sunset['hour']) + ':' + str(sunset['minute']) + '\n'
+        string_result += 'CurTC:\t' + str(temp_current) + 'C' + '\n'
+        string_result += 'MaxTC:\t' + str(day_high) + 'C' + '\n'
+        string_result += 'MinTC:\t' + str(day_low) + 'C' + '\n'
 
         WritetoLog(self.name, string_result)
 

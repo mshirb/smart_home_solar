@@ -2,7 +2,7 @@ import argparse
 
 import GlobalSettings
 import AirConditionerService
-import WundergroundProvider
+# import WundergroundProvider
 import ForecastIOProvider
 
 api_keys = {}
