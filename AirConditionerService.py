@@ -5,12 +5,13 @@ import GlobalSettings
 import SolarEdge_Access
 from time import sleep
 import pyfttt
+from LoggerService import WritetoLog
 
 class ACThread(threading.Thread):
     def __init__(self, weatherprovider, api_keys, se_siteid, temps, pvlimit):
         threading.Thread.__init__(self)
         self.name = 'Air Conditioning'
-        print(self.name + ': Initialising')
+        WritetoLog(self.name, 'Initialising')
         self.api_keys = api_keys
         self.site_id = se_siteid
         self.temp_high = temps[0]
@@ -19,38 +20,38 @@ class ACThread(threading.Thread):
         self.weatherprovider = weatherprovider
 
     def __SolarEdge_Run(self, sedge):
-        print(self.name + ': Updating Solar @ ' + str(datetime.datetime.now()))
+        WritetoLog(self.name, 'Updating Solar @ ' + str(datetime.datetime.now()))
         success_read = True
         try:
             bdirection, sunit, pvpower, loadpower, gridpower = sedge.getcurrentpowerflow(self.site_id)
         except Exception:
-            print(self.name + ': Error with Getting Data')
+            WritetoLog(self.name, 'Error with Getting Data')
             success_read = False
             sleep(60)
 
         if success_read:
             if bdirection and (pvpower > self.PV_Limit) and (sunit == 'kW') and not GlobalSettings.bAirConOn:
-                print(self.name + ': Turning on AirConditioner')
+                WritetoLog(self.name, 'Turning on AirConditioner')
                 GlobalSettings.bAirConOn = True
                 pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='On @ ' + str(pvpower) + sunit)
             elif bdirection and GlobalSettings.bAirConOn and (pvpower <= self.PV_Limit) and (sunit == 'kW'):
-                print(self.name + ': Turning off AirConditioner')
+                WritetoLog(self.name, 'Turning off AirConditioner')
                 GlobalSettings.bAirConOn = False
                 pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning',
                                   value1=('Off @ ' + str(pvpower) + sunit))
             elif GlobalSettings.bAirConOn:
-                print(self.name + ': Air Conditioning already on')
+                WritetoLog(self.name, 'Air Conditioning already on')
 
             if not bdirection and GlobalSettings.bAirConOn:
-                print(self.name + ': Turning off AirConditioner')
+                WritetoLog(self.name, 'Turning off AirConditioner')
                 GlobalSettings.bAirConOn = False
                 pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off @ Importing')
             elif not bdirection:
-                print(self.name + ': Still importing')
+                WritetoLog(self.name, 'Still importing')
 
     def run(self):
 
-        print(self.name + ': Starting')
+        WritetoLog(self.name, 'Starting')
 
         #Set Location for the Weather
         location = 'Australia/Googong'
@@ -64,7 +65,7 @@ class ACThread(threading.Thread):
         solar_update_time = current_time
 
         if not GlobalSettings.ACFlag:
-            print(self.name + ': Running @ ' + str(current_time))
+            WritetoLog(self.name, 'Running @ ' + str(current_time))
 
         while not GlobalSettings.ACFlag:
 
@@ -82,19 +83,19 @@ class ACThread(threading.Thread):
                 solar_update_time = current_time + datetime.timedelta(minutes=10)
 
                 if int(ctime.hour) < int(sunrise['hour']):
-                    print(self.name + ': Before Sunrise')
+                    WritetoLog(self.name, 'Before Sunrise')
 
                 elif int(ctime.hour) > int(sunset['hour']):
-                    print(self.name + ': After Sunset')
+                    WritetoLog(self.name, 'After Sunset')
                     if GlobalSettings.bAirConOn:
-                        print(self.name + ': Turning off AirConditioner')
+                        WritetoLog(self.name, 'Turning off AirConditioner')
                         GlobalSettings.bAirConOn = False
                         pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off @ Sunset')
 
                 else:
-                    print(self.name + ': Start')
+                    WritetoLog(self.name, 'Start')
                     self.__SolarEdge_Run(sedge)
 
             sleep(60)
 
-        print(self.name + ': Exiting...')
+        WritetoLog(self.name, 'Exiting...')

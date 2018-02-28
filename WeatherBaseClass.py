@@ -4,6 +4,7 @@ import datetime
 from time import sleep
 
 import GlobalSettings
+import LoggerService
 
 
 class WeatherClass(threading.Thread):
@@ -14,7 +15,7 @@ class WeatherClass(threading.Thread):
         self.weather = {}
         self.update_time = None
         self.updateWeather()
-        print(self.name + ': Base Class Initialised')
+        LoggerService.WritetoLog(self.name, 'Base Class Initialised')
 
     def getTempHigh(self):
         try:
@@ -51,7 +52,7 @@ class WeatherClass(threading.Thread):
         pass
 
     def run(self):
-        print(self.name + ': Running')
+        LoggerService.WritetoLog(self.name, 'Running')
         while GlobalSettings.WeatherProcessFlag:
             if self.update_time < datetime.datetime.now():
                 self.updateWeather()

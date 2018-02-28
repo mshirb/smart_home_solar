@@ -3,6 +3,7 @@ from time import sleep
 import requests
 
 from WeatherBaseClass import WeatherClass
+from LoggerService import WritetoLog
 
 url_head = 'https://api.darksky.net/forecast/'
 
@@ -13,15 +14,15 @@ class MyWeatherProvider(WeatherClass):
         self.api = str(api_keys['ForecastIO'])
         WeatherClass.__init__(self, location=location)
         self.name = 'ForecastIOProvider'
-        print(self.name + ': Initialised')
+        WritetoLog(self.name, 'Initialised')
 
     def updateWeather(self):
-        print(self.name + ': Updating Weather Service')
+        WritetoLog(self.name,'Updating Weather Service @ ' + str(datetime.datetime.now()))
 
         url = url_head + self.api + '/' + self.location
         response = requests.get(url, {'exclude': 'minutely, hourly', 'units': 'si'})
         if response.status_code != 200:
-            print(self.name + ': ERROR ' + response.status_code)
+            WritetoLog(self.name, 'ERROR ' + response.status_code)
             return
         # print(response.json()['daily']['data'][0])
 
@@ -46,11 +47,13 @@ class MyWeatherProvider(WeatherClass):
         day_high = float(resp['daily']['data'][0]['temperatureHigh'])
         day_low = float(resp['daily']['data'][0]['temperatureLow'])
 
-        print(self.name + ': Sunrise:\t' + str(sunrise['hour']) + ':' + str(sunrise['minute']))
-        print(self.name + ': Sunset:\t' + str(sunset['hour']) + ':' + str(sunset['minute']))
-        print(self.name + ': CurTC:\t' + str(temp_current) + 'C')
-        print(self.name + ': MaxTC:\t' + str(day_high) + 'C')
-        print(self.name + ': MinTC:\t' + str(day_low) + 'C')
+        string_result = 'Sunrise:\t' + str(sunrise['hour']) + ':' + str(sunrise['minute'])
+        string_result += 'Sunset:\t' + str(sunset['hour']) + ':' + str(sunset['minute'])
+        string_result += 'CurTC:\t' + str(temp_current) + 'C'
+        string_result += 'MaxTC:\t' + str(day_high) + 'C'
+        string_result += 'MinTC:\t' + str(day_low) + 'C'
+
+        WritetoLog(self.name, string_result)
 
         self.weather = \
             {
