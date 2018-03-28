@@ -6,9 +6,27 @@ import SolarEdge_Access
 from time import sleep
 import pyfttt
 from LoggerService import WritetoLog
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+AC_CONTROL = True
+
+# For Flask
+@app.route('/control/<level>')
+def control_level(level):
+    global AC_CONTROL
+    if(level == 'OFF'):
+        AC_CONTROL = False
+        return jsonify({'MESSAGE': 'Control of the AC has been turned off'})
+    elif(level == 'ON'):
+        AC_CONTROL = True
+        return jsonify({'MESSAGE': 'Control of the AC has been turned on'})
+
 
 class ACThread(threading.Thread):
     def __init__(self, weatherprovider, api_keys, se_siteid, temps, pvlimit):
+        global app
         threading.Thread.__init__(self)
         self.name = 'Air Conditioning'
         WritetoLog(self.name, 'Initialising')
@@ -19,7 +37,11 @@ class ACThread(threading.Thread):
         self.PV_Limit = pvlimit
         self.weatherprovider = weatherprovider
 
+        #Initiate the Flask server here
+        app.run()
+
     def __SolarEdge_Run(self, sedge):
+        global AC_CONTROL
         WritetoLog(self.name, 'Updating Solar @ ' + str(datetime.datetime.now()))
         success_read = True
         try:
@@ -31,26 +53,35 @@ class ACThread(threading.Thread):
 
         if success_read:
             if bdirection and (pvpower > self.PV_Limit) and (sunit == 'kW') and not GlobalSettings.bAirConOn:
-                WritetoLog(self.name, 'Turning on AirConditioner')
-                GlobalSettings.bAirConOn = True
-                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='On @ ' + str(pvpower) + sunit)
+                if(AC_CONTROL):
+                    WritetoLog(self.name, 'Turning on AirConditioner')
+                    GlobalSettings.bAirConOn = True
+                    pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='On @ ' + str(pvpower) + sunit)
+                else:
+                    WritetoLog(self.name, 'We are not in control of AC')
             elif bdirection and GlobalSettings.bAirConOn and (pvpower <= self.PV_Limit) and (sunit == 'kW'):
-                WritetoLog(self.name, 'Turning off AirConditioner')
-                GlobalSettings.bAirConOn = False
-                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning',
-                                  value1=('Off @ ' + str(pvpower) + sunit))
+                if(AC_CONTROL):
+                    WritetoLog(self.name, 'Turning off AirConditioner')
+                    GlobalSettings.bAirConOn = False
+                    pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning',
+                      value1=('Off @ ' + str(pvpower) + sunit))
+                else:
+                    WritetoLog(self.name, 'We are not in control of AC')
             elif GlobalSettings.bAirConOn:
                 WritetoLog(self.name, 'Air Conditioning already on')
 
             if not bdirection and GlobalSettings.bAirConOn:
-                WritetoLog(self.name, 'Turning off AirConditioner')
-                GlobalSettings.bAirConOn = False
-                pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off @ Importing')
+                if(AC_CONTROL):
+                    WritetoLog(self.name, 'Turning off AirConditioner')
+                    GlobalSettings.bAirConOn = False
+                    pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off @ Importing')
+                else:
+                    WritetoLog(self.name, 'We are not in control of AC')
             elif not bdirection:
                 WritetoLog(self.name, 'Still importing')
 
     def run(self):
-
+        global AC_CONTROL
         WritetoLog(self.name, 'Starting')
 
         #Set Location for the Weather
@@ -87,10 +118,12 @@ class ACThread(threading.Thread):
 
                 elif int(ctime.hour) > int(sunset['hour']):
                     WritetoLog(self.name, 'After Sunset')
-                    if GlobalSettings.bAirConOn:
+                    if GlobalSettings.bAirConOn and AC_CONTROL:
                         WritetoLog(self.name, 'Turning off AirConditioner')
                         GlobalSettings.bAirConOn = False
                         pyfttt.send_event(self.api_keys['IFTTT'], 'press_air_conditioning', value1='Off @ Sunset')
+                    elif not AC_CONTROL:
+                        WritetoLog(self.name, 'We are not in control of AC')
 
                 else:
                     WritetoLog(self.name, 'Start')

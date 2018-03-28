@@ -1,11 +1,21 @@
 import datetime
+import logging
 
-file_header = 'record'
+# Logger information to print to screen and file
+logger = logging.getLogger('SHS_LoggingService')
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('SHS_LoggingService.log')
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+logger.addHandler(fh)
+logger.addHandler(ch)
 
-def WritetoLog(thread_id, message):
-    dt = datetime.datetime.now()
-    file_name = "{}_{}-{}-{}.log".format(file_header, str(dt.year), str(dt.month), str(dt.day))
-    with open(file_name, 'a') as f:
-        f.write("{}: {}\n".format(thread_id, message))
-    print("{}: {}".format(thread_id, message))
+def WritetoLog(thread_id, message, level = logging.DEBUG):
+    msg = "{}: {}".format(thread_id, message)
+    if(level == logging.DEBUG):
+        logger.debug(msg)
+    elif(level == logging.INFO):
+        logger.info(msg)
 
