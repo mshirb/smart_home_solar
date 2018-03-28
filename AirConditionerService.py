@@ -38,7 +38,7 @@ class ACThread(threading.Thread):
         self.weatherprovider = weatherprovider
 
         #Initiate the Flask server here
-        app.run(host='0.0.0.0', use_reloader=False, debug=True)
+        app.run(host='0.0.0.0', use_reloader=False, debug=False)
 
         WritetoLog(self.name, 'Initialised...')
 
