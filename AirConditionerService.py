@@ -38,7 +38,7 @@ class ACThread(threading.Thread):
         self.weatherprovider = weatherprovider
 
         #Initiate the Flask server here
-        app.run()
+        app.run(host='0.0.0.0')
 
     def __SolarEdge_Run(self, sedge):
         global AC_CONTROL
