@@ -6,22 +6,25 @@ import SolarEdge_Access
 from time import sleep
 import pyfttt
 from LoggerService import WritetoLog
-from flask import Flask, jsonify
+from flask import Flask, jsonify, logging
+from logging import getLogger, StreamHandler, DEBUG
 
-app = Flask(__name__)
-
+# app = Flask(__name__)
+# app.logger.disabled = True
+# logging.getLogger('werkzeug').disabled = True
+# GlobalSettings.initLogger()
 AC_CONTROL = True
 
 # For Flask
-@app.route('/control/<level>')
-def control_level(level):
-    global AC_CONTROL
-    if(level == 'OFF'):
-        AC_CONTROL = False
-        return jsonify({'MESSAGE': 'Control of the AC has been turned off'})
-    elif(level == 'ON'):
-        AC_CONTROL = True
-        return jsonify({'MESSAGE': 'Control of the AC has been turned on'})
+# @app.route('/control/<level>')
+# def control_level(level):
+#     global AC_CONTROL
+#     if(level == 'OFF'):
+#         AC_CONTROL = False
+#         return jsonify({'MESSAGE': 'Control of the AC has been turned off'})
+#     elif(level == 'ON'):
+#         AC_CONTROL = True
+#         return jsonify({'MESSAGE': 'Control of the AC has been turned on'})
 
 
 class ACThread(threading.Thread):
@@ -38,7 +41,8 @@ class ACThread(threading.Thread):
         self.weatherprovider = weatherprovider
 
         #Initiate the Flask server here
-        app.run(host='0.0.0.0', use_reloader=False, debug=False)
+        from flask import logging as flask_logging
+        # app.run(host='0.0.0.0', use_reloader=False, debug=False)
 
         WritetoLog(self.name, 'Initialised...')
 
